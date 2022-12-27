@@ -18,15 +18,17 @@ class UIScene extends Phaser.Scene {
     {
         this.scoreText = this.add.text(this.scale.gameSize.width/2, 10, 'Score: 0000', { font: '32px Impact', fill: 'Cyan', align: 'center' });
         this.timeText = this.add.text(10, 10, '', { font: '32px Impact', fill: 'Cyan', align: 'left' })
-        this.cellCountText = this.add.text(this.scale.gameSize.width-100, 10, '', { font: '32px Impact', fill: 'Cyan', align: 'right' })
+        this.cellCountText = this.add.text(this.scale.gameSize.width-200, 10, '', { font: '32px Impact', fill: 'Cyan', align: 'right' })
 
         let world = this.scene.get('WorldScene');
 
         world.events.on('addScore', this.addScore, this);
+        world.events.on('updateCellCount', this.updateCellCount, this)
     }
 
     update (time, delta) {
         this.timeText.setText('Time: ' + String(parseInt(time/1000)).padStart(4, '0'));
+        this.cellCountText.setText('Cells:' + this.cellCount + '/' + this.totalCells)
     }
 
     addScore() {
@@ -36,12 +38,11 @@ class UIScene extends Phaser.Scene {
 
     updateCellCount(value) {
         this.cellCount += value;
-        this.cellCountText.setText('Cells:' + this.cellCount + '/' + this.totalCells)
     }
 }
 
 class CancerCell extends Phaser.Physics.Matter.Sprite {
-    
+
     constructor (world, x, y, texture)
     {
         super(world, x, y, texture);
@@ -53,9 +54,18 @@ class CancerCell extends Phaser.Physics.Matter.Sprite {
         world.scene.matter.add.sprite(this);
     }
 
+    create() {
+
+    }
+
     preUpdate (time, delta)
     {
         super.preUpdate(time, delta);
+    }
+
+    destroy() {
+        console.log("killed!");
+        super.destroy();
     }
 }
 
@@ -100,6 +110,8 @@ class WorldScene extends Phaser.Scene {
 
     create () {
         this.matter.set60Hz();
+        this.scene.get('UIScene').totalCells = this.maxCells;
+        this.scene.get('UIScene').cellCount = this.maxCells;
 
         this.matter.world.setBounds(0, 0, 2048, 2048);
         this.cameras.main.setBounds(0, 0, 2048, 2048);
@@ -155,6 +167,7 @@ class WorldScene extends Phaser.Scene {
             this.cancerEmitter.explode(3000, object1.gameObject.x, object1.gameObject.y);
             object1.gameObject.destroy();
             this.events.emit('addScore');
+            this.events.emit('updateCellCount', -1);
             this.resetBullet(object2.gameObject);
             return;
         }
@@ -163,6 +176,7 @@ class WorldScene extends Phaser.Scene {
             this.cancerEmitter.explode(3000, object2.gameObject.x, object2.gameObject.y);
             object2.gameObject.destroy();
             this.events.emit('addScore');
+            this.events.emit('updateCellCount', -1);
             this.resetBullet(object1.gameObject);
             return;
         }
