@@ -9,7 +9,7 @@ class UIScene extends Phaser.Scene {
 
     create ()
     {
-        let info = this.add.text(10, 10, 'Score: 0', { font: '48px Impact', fill: 'Cyan' });
+        let info = this.add.text(10, 10, 'Score: 0', { font: '32px Impact', fill: 'Cyan' });
 
         //  Grab a reference to the Game Scene
         let world = this.scene.get('WorldScene');
@@ -21,6 +21,25 @@ class UIScene extends Phaser.Scene {
             info.setText('Score: ' + this.score);
 
         }, this);
+    }
+}
+
+class CancerCell extends Phaser.Physics.Matter.Sprite {
+    
+    constructor (world, x, y, texture)
+    {
+        super(world, x, y, texture);
+
+        this.setTexture(texture);
+        this.setPosition(x, y);
+        this.body.label = "cancer";
+        world.scene.add.existing(this);
+        world.scene.matter.add.sprite(this);
+    }
+
+    preUpdate (time, delta)
+    {
+        super.preUpdate(time, delta);
     }
 }
 
@@ -57,18 +76,16 @@ class WorldScene extends Phaser.Scene {
     //Cancer
     cancerEmitter;
 
-
-
     preload () {    
-    this.load.path = './assets/';
+        this.load.path = './assets/';
 
-    this.load.image('map', 'world-map.png');
-    this.load.image('tcell', 'tcell.png');
-    this.load.image('cancer', 'cancer.png');
-    this.load.image('bullet', 'bullet.png');
-    this.load.image('particle', 'particles-single.png');
-    this.load.image('rock-tile-small', 'rock-tile-small.png');
-}
+        this.load.image('map', 'background.jpg');
+        this.load.image('tcell', 'tcell.png');
+        this.load.image('cancer', 'cancer.png');
+        this.load.image('bullet', 'bullet.png');
+        this.load.image('particle', 'particles-single.png');
+        this.load.image('rock-tile-small', 'rock-tile-small.png');
+    }
 
     create () {
         this.matter.set60Hz();
@@ -77,7 +94,6 @@ class WorldScene extends Phaser.Scene {
         this.cameras.main.setBounds(0, 0, 2048, 2048);
 
         this.map = this.add.image(0,0,'map').setOrigin(0);
-        this.map.scale = 0.5;
 
         let particles = this.add.particles('particle');
 
@@ -96,9 +112,11 @@ class WorldScene extends Phaser.Scene {
         this.cancerGroup = this.matter.world.nextGroup(true);
         this.bulletGroup = this.matter.world.nextGroup(true);
 
-        this.cancer = this.matter.add.sprite(100,100,'cancer').setStatic(true).setSensor(true);
-        this.cancer.body.label = "cancer";
-        this.cancer.setCollisionGroup(this.cancerGroup);
+        this.cancer = new CancerCell(this.matter.world, 100, 100, 'cancer').setStatic(true).setSensor(true);
+
+        //this.cancer = this.matter.add.sprite(100, 100, 'cancer').setStatic(true).setSensor(true);
+        //this.cancer = this.matter.add.sprite(new CancerCell(this.matter.world, 100, 100, 'cancer'));
+        //this.cancer.setCollisionGroup(this.cancerGroup);
 
         this.player = this.matter.add.sprite(500,300, 'tcell');
         this.player.setCollisionGroup(this.bulletGroup);
