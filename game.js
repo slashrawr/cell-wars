@@ -1,3 +1,27 @@
+class MainMenuScene extends Phaser.Scene {
+
+    constructor () {
+        super({ key: 'MainMenuScene' });
+    }
+
+    preload () {    
+        this.load.path = './assets/';
+
+        this.load.image('button', 'button.png');
+    }
+
+    create () {
+        const { width, height } = this.scale;
+
+        this.add.image(width*0.5,height*0.6,'button').setScale(0.5);
+        this.add.text(width*0.5,height*0.58, 'Play', { font: '40px Impact', fill: 'Yellow', align: 'center' }).setOrigin(0.5);
+    }
+
+    update (time, delta) {
+
+    }
+}
+
 class UIScene extends Phaser.Scene {
     
     world;
@@ -8,18 +32,16 @@ class UIScene extends Phaser.Scene {
     cellCount;
     cellCountText;
 
-    constructor ()
-    {
+    constructor () {
         super({ key: 'UIScene', active: true });
         this.score = 0;
         this.cellCount = 0;
     }
 
-    create ()
-    {
-        this.scoreText = this.add.text(this.scale.gameSize.width/2, 10, 'Score: 0000', { font: '32px Impact', fill: 'Cyan', align: 'center' });
-        this.timeText = this.add.text(10, 10, '', { font: '32px Impact', fill: 'Cyan', align: 'left' })
-        this.cellCountText = this.add.text(this.scale.gameSize.width-200, 10, '', { font: '32px Impact', fill: 'Cyan', align: 'right' })
+    create () {
+        this.scoreText = this.add.text(this.scale.gameSize.width/2, 20, 'Score: 0000', { font: '32px Impact', fill: 'Cyan', align: 'center' }).setOrigin(0.5);
+        this.timeText = this.add.text(100, 20, '', { font: '32px Impact', fill: 'Cyan', align: 'left' }).setOrigin(0.5);
+        this.cellCountText = this.add.text(this.scale.gameSize.width-100, 20, '', { font: '32px Impact', fill: 'Cyan', align: 'right' }).setOrigin(0.5);
 
         this.world = this.scene.get('WorldScene');
 
@@ -28,7 +50,7 @@ class UIScene extends Phaser.Scene {
 
     update (time, delta) {
         this.timeText.setText('Time: ' + String(parseInt(time/1000)).padStart(4, '0'));
-        this.cellCountText.setText('Cells:' + this.world.currentCellCount);
+        this.cellCountText.setText('Cells:' + String(parseInt(this.world.currentCellCount)).padStart(2,'0'));
     }
 
     addScore() {
@@ -41,8 +63,7 @@ class CancerCell extends Phaser.Physics.Matter.Sprite {
 
     health = 10;
 
-    constructor (world, x, y, texture, health)
-    {
+    constructor (world, x, y, texture, health) {
         super(world, x, y, texture);
 
         this.setTexture(texture);
@@ -75,8 +96,8 @@ class CancerCell extends Phaser.Physics.Matter.Sprite {
 }
 
 class WorldScene extends Phaser.Scene {
-    constructor ()
-    {
+    
+    constructor () {
         super('WorldScene');
     }
 
@@ -102,13 +123,15 @@ class WorldScene extends Phaser.Scene {
     cellTimer;
     cancerEmitter;
     initialCellCount = 10; //number of cells to start with
-    cellTick = 1; //rate at which new cells are generated - seconds
+    cellTick = 5; //rate at which new cells are generated - seconds
     cellsPerTick = 1; //number of cells generated per tick
     maxCells = 20; //number of cells to lose the game
     currentCellCount = 0;
 
     preload () {    
         this.load.path = './assets/';
+
+        this.load.spritesheet('fireball', 'fireball-sprite-sheet-green.png', { frameWidth: 512, frameHeight: 512 });
 
         this.load.image('map', 'background.jpg');
         this.load.image('tcell', 'tcell.png');
@@ -121,6 +144,12 @@ class WorldScene extends Phaser.Scene {
     create () {
         this.matter.set60Hz();
         this.scene.get('UIScene').cellCount = this.initialCellCount;
+        this.anims.create({
+            key: 'fireball',
+            frames: this.anims.generateFrameNumbers('fireball', { frames: [ 0, 1, 2, 3, 4, 5 ] }),
+            frameRate: 8,
+            repeat: -1
+        });
 
         this.matter.world.setBounds(0, 0, 2048, 2048);
         this.cameras.main.setBounds(0, 0, 2048, 2048);
@@ -161,7 +190,6 @@ class WorldScene extends Phaser.Scene {
             b.setCollisionGroup(this.bulletGroup);
             b.visible = false;
             b.setMass(0.1);
-            b.setTint('#de16d1')
             this.bullets.push(b);
         }
 
@@ -244,7 +272,9 @@ class WorldScene extends Phaser.Scene {
                 bullet.y = this.player.y;
                 bullet.visible = true;
                 bullet.rotation = this.player.rotation;
-                this.matter.applyForceFromPosition(bullet, this.player.body.position, 0.009, this.player.rotation);
+                bullet.setScale(0.3);
+                bullet.play('fireball');
+                this.matter.applyForceFromPosition(bullet, this.player.body.position, 0.0008, this.player.rotation);
                 this.isBulletOut = true;
             }
         }
@@ -260,7 +290,7 @@ class WorldScene extends Phaser.Scene {
 
     resetBullet(bullet) {
         bullet.visible = false;
-        bullet.active = false;
+        //bullet.active = false;
         bullet.x = -100;
         bullet.y = -100;
         bullet.setVelocity(0);
