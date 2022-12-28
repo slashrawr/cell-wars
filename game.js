@@ -1,6 +1,7 @@
 class UIScene extends Phaser.Scene {
     
-    score
+    world;
+    score;
     scoreText;
     timeText;
     totalCells;
@@ -20,36 +21,34 @@ class UIScene extends Phaser.Scene {
         this.timeText = this.add.text(10, 10, '', { font: '32px Impact', fill: 'Cyan', align: 'left' })
         this.cellCountText = this.add.text(this.scale.gameSize.width-200, 10, '', { font: '32px Impact', fill: 'Cyan', align: 'right' })
 
-        let world = this.scene.get('WorldScene');
+        this.world = this.scene.get('WorldScene');
 
-        world.events.on('addScore', this.addScore, this);
-        world.events.on('updateCellCount', this.updateCellCount, this)
+        this.world.events.on('addScore', this.addScore, this);
     }
 
     update (time, delta) {
         this.timeText.setText('Time: ' + String(parseInt(time/1000)).padStart(4, '0'));
-        this.cellCountText.setText('Cells:' + this.cellCount + '/' + this.totalCells)
+        this.cellCountText.setText('Cells:' + this.world.currentCellCount);
     }
 
     addScore() {
         this.score += 10;
         this.scoreText.setText('Score: ' + String(parseInt(this.score)).padStart(4, '0'));
     }
-
-    updateCellCount(value) {
-        this.cellCount += value;
-    }
 }
 
 class CancerCell extends Phaser.Physics.Matter.Sprite {
 
-    constructor (world, x, y, texture)
+    health = 10;
+
+    constructor (world, x, y, texture, health)
     {
         super(world, x, y, texture);
 
         this.setTexture(texture);
         this.setPosition(x, y);
         this.body.label = "cancer";
+        this.health = health;
         world.scene.add.existing(this);
         world.scene.matter.add.sprite(this);
     }
@@ -58,13 +57,19 @@ class CancerCell extends Phaser.Physics.Matter.Sprite {
 
     }
 
-    preUpdate (time, delta)
-    {
+    preUpdate (time, delta) {
         super.preUpdate(time, delta);
     }
 
+    receiveHit(damage) {
+        this.health -= damage;
+        if (this.health <= 0)
+            this.destroy()
+    }
+
     destroy() {
-        console.log("killed!");
+        this.scene.events.emit('addScore');
+        this.scene.currentCellCount--;
         super.destroy();
     }
 }
@@ -94,8 +99,13 @@ class WorldScene extends Phaser.Scene {
     spaceKey;
 
     //Cancer
+    cellTimer;
     cancerEmitter;
-    maxCells = 10;
+    initialCellCount = 10; //number of cells to start with
+    cellTick = 1; //rate at which new cells are generated - seconds
+    cellsPerTick = 1; //number of cells generated per tick
+    maxCells = 20; //number of cells to lose the game
+    currentCellCount = 0;
 
     preload () {    
         this.load.path = './assets/';
@@ -110,8 +120,7 @@ class WorldScene extends Phaser.Scene {
 
     create () {
         this.matter.set60Hz();
-        this.scene.get('UIScene').totalCells = this.maxCells;
-        this.scene.get('UIScene').cellCount = this.maxCells;
+        this.scene.get('UIScene').cellCount = this.initialCellCount;
 
         this.matter.world.setBounds(0, 0, 2048, 2048);
         this.cameras.main.setBounds(0, 0, 2048, 2048);
@@ -127,7 +136,7 @@ class WorldScene extends Phaser.Scene {
             lifespan: 300,
             tint: 0xde16d1,
             angle: { min: 0, max: 360 },
-            speed: 150
+            speed: 350
         });
 
         this.cancerEmitter.active = false;
@@ -135,8 +144,9 @@ class WorldScene extends Phaser.Scene {
         this.cancerGroup = this.matter.world.nextGroup(true);
         this.bulletGroup = this.matter.world.nextGroup(true);
 
-        for (let i = 0; i < this.maxCells; i++) {
-            let cancerCell = new CancerCell(this.matter.world, Phaser.Math.Between(100, 1948), Phaser.Math.Between(100, 1948), 'cancer').setStatic(true).setSensor(true);
+        for (let i = 0; i < this.initialCellCount; i++) {
+            let cancerCell = new CancerCell(this.matter.world, Phaser.Math.Between(100, 1948), Phaser.Math.Between(100, 1948), 'cancer', 50).setStatic(true).setSensor(true);
+            this.currentCellCount++;
         }
 
         this.player = this.matter.add.sprite(500,300, 'tcell');
@@ -159,24 +169,32 @@ class WorldScene extends Phaser.Scene {
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
         this.matter.world.on('collisionstart', this.collision, this);
+        this.cellTimer = this.time.addEvent({ delay: this.cellTick * 1000, callback: this.generateCell, callbackScope: this, loop: true });
+    }
+
+    generateCell() {
+        for (let i = 0; i < this.cellsPerTick; i++) {
+            let cancerCell = new CancerCell(this.matter.world, Phaser.Math.Between(100, 1948), Phaser.Math.Between(100, 1948), 'cancer', 50).setStatic(true).setSensor(true);
+            this.currentCellCount++;
+        }
+
+        if (this.currentCellCount >= this.maxCells) {
+            this.cellTimer.remove(false);
+        }
     }
 
     collision(event, object1, object2) {
         if ((object1.label == "cancer" && object2.label == "bullet")) {
             this.cancerEmitter.active = true;
             this.cancerEmitter.explode(3000, object1.gameObject.x, object1.gameObject.y);
-            object1.gameObject.destroy();
-            this.events.emit('addScore');
-            this.events.emit('updateCellCount', -1);
+            object1.gameObject.receiveHit(10);
             this.resetBullet(object2.gameObject);
             return;
         }
         else if (object1.label == "bullet" && object2.label == "cancer") {
             this.cancerEmitter.active = true;
             this.cancerEmitter.explode(3000, object2.gameObject.x, object2.gameObject.y);
-            object2.gameObject.destroy();
-            this.events.emit('addScore');
-            this.events.emit('updateCellCount', -1);
+            object2.gameObject.receiveHit(10);            
             this.resetBullet(object1.gameObject);
             return;
         }
