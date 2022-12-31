@@ -22,6 +22,52 @@ class MainMenuScene extends Phaser.Scene {
     }
 }
 
+class WinScene extends Phaser.Scene {
+
+    constructor () {
+        super({ key: 'WinScene' });
+    }
+
+    preload () {    
+        this.load.path = './assets/';
+
+        this.load.image('you-win', 'you-win.png');
+    }
+
+    create () {
+        const { width, height } = this.scale;
+
+        this.add.image(width*0.5,height*0.5,'you-win');
+    }
+
+    update (time, delta) {
+
+    }
+}
+
+class LoseScene extends Phaser.Scene {
+
+    constructor () {
+        super({ key: 'LoseScene' });
+    }
+
+    preload () {    
+        this.load.path = './assets/';
+
+        this.load.image('game-over', 'game-over.png');
+    }
+
+    create () {
+        const { width, height } = this.scale;
+
+        this.add.image(width*0.5,height*0.5,'game-over');
+    }
+
+    update (time, delta) {
+
+    }
+}
+
 class UIScene extends Phaser.Scene {
     
     world;
@@ -49,7 +95,7 @@ class UIScene extends Phaser.Scene {
     }
 
     update (time, delta) {
-        this.timeText.setText('Time: ' + String(parseInt(time/1000)).padStart(4, '0'));
+        this.timeText.setText('Time: ' + String(parseInt(this.world.worldTime)).padStart(4, '0'));
         this.cellCountText.setText('Cells:' + String(parseInt(this.world.currentCellCount)).padStart(2,'0'));
     }
 
@@ -84,13 +130,14 @@ class CancerCell extends Phaser.Physics.Matter.Sprite {
 
     receiveHit(damage) {
         this.health -= damage;
-        if (this.health <= 0)
+        if (this.health <= 0) {
+            this.scene.events.emit('addScore');
+            this.scene.currentCellCount--;
             this.destroy()
+        }
     }
 
     destroy() {
-        this.scene.events.emit('addScore');
-        this.scene.currentCellCount--;
         super.destroy();
     }
 }
@@ -107,6 +154,8 @@ class WorldScene extends Phaser.Scene {
     cancer;
     cancerGroup;
     cursors;
+    worldTime = 0;
+    worldTimer;
 
     //Weapon & Bullets
     maxBullets = 10;
@@ -122,10 +171,10 @@ class WorldScene extends Phaser.Scene {
     //Cancer
     cellTimer;
     cancerEmitter;
-    initialCellCount = 10; //number of cells to start with
+    initialCellCount = 1; //number of cells to start with
     cellTick = 5; //rate at which new cells are generated - seconds
     cellsPerTick = 1; //number of cells generated per tick
-    maxCells = 20; //number of cells to lose the game
+    maxCells = 2; //number of cells to lose the game
     currentCellCount = 0;
 
     preload () {    
@@ -198,6 +247,11 @@ class WorldScene extends Phaser.Scene {
 
         this.matter.world.on('collisionstart', this.collision, this);
         this.cellTimer = this.time.addEvent({ delay: this.cellTick * 1000, callback: this.generateCell, callbackScope: this, loop: true });
+        this.worldTimer = this.time.addEvent({ delay: 1000, callback: this.incrementWorldTime, callbackScope: this, loop: true });
+    }
+
+    incrementWorldTime() {
+        this.worldTime++;
     }
 
     generateCell() {
@@ -208,6 +262,7 @@ class WorldScene extends Phaser.Scene {
 
         if (this.currentCellCount >= this.maxCells) {
             this.cellTimer.remove(false);
+            this.loadGameOverScene(false);
         }
     }
 
@@ -217,6 +272,10 @@ class WorldScene extends Phaser.Scene {
             this.cancerEmitter.explode(3000, object1.gameObject.x, object1.gameObject.y);
             object1.gameObject.receiveHit(10);
             this.resetBullet(object2.gameObject);
+            
+            if (this.currentCellCount <= 0)
+                this.loadGameOverScene(true);
+
             return;
         }
         else if (object1.label == "bullet" && object2.label == "cancer") {
@@ -224,6 +283,10 @@ class WorldScene extends Phaser.Scene {
             this.cancerEmitter.explode(3000, object2.gameObject.x, object2.gameObject.y);
             object2.gameObject.receiveHit(10);            
             this.resetBullet(object1.gameObject);
+
+            if (this.currentCellCount <= 0)
+                this.loadGameOverScene(true);
+
             return;
         }
 
@@ -295,13 +358,24 @@ class WorldScene extends Phaser.Scene {
         bullet.y = -100;
         bullet.setVelocity(0);
     }
+
+    loadGameOverScene(isWin) {
+        this.scene.pause();
+        this.add.rectangle(0, 0, 2048, 2048, 0x000000).setOrigin(0,0).setAlpha(0.3);
+
+        if (isWin) {
+            this.scene.launch('WinScene');
+        } else {
+            this.scene.launch('LoseScene');
+        }       
+    }
 }
 
 const config = {
     type: Phaser.AUTO,
     width: 1280,
     height: 720,
-    scene: [WorldScene, UIScene],
+    scene: [WorldScene, UIScene, WinScene, LoseScene],
     physics: {
         default: "matter",
         matter: {
