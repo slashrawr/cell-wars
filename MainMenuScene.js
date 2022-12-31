@@ -6,7 +6,6 @@ class MainMenuScene extends Phaser.Scene {
 
     preload () {    
         this.load.path = './assets/';
-        this.load.image('button', 'button.png');
     }
 
     create () {

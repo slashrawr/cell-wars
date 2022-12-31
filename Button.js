@@ -4,7 +4,7 @@ class Button {
         var button = scene.add.text(x, y, label)
                     .setOrigin(0.5)
                     .setPadding(10)
-                    .setStyle({ backgroundColor: '#222' })
+                    //.setStyle({ backgroundColor: '#222' })
                     .setFontSize('42px')
                     .setFontFamily('"PressStart2P", cursive')
                     .setInteractive({ useHandCursor: true })
