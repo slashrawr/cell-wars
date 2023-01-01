@@ -1,17 +1,12 @@
 class LoadingScene extends Phaser.Scene {
 
-    progressBar;
-    loadComplete;
-
     constructor () {
         super({ key: 'LoadingScene' });
-        this.loadComplete = false;
     }
 
     preload () {    
         let width = this.cameras.main.width;
         let height = this.cameras.main.height;
-        console.log(width);
         this.load.path = './assets/';
         let assets = this.cache.json.get('assets');
 
@@ -50,12 +45,10 @@ class LoadingScene extends Phaser.Scene {
         this.load.on('progress', function (value) {
             progressBar.fillRect(width/2-150, height/2, 300*value, 30);
             progressText.setText(parseInt(value*100) + "%");
-            console.log(value);
         });
                     
         this.load.on('fileprogress', function (file) {
             fileProgressText.setText(file.src.split("/").reverse()[0]);
-            console.log(file);
         });
 
         this.load.on('complete', function () {

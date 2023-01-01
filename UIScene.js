@@ -17,9 +17,9 @@ class UIScene extends Phaser.Scene {
     create () {
         const { width, height } = this.scale;
 
-        this.scoreText = this.add.text(width/2, 40, 'Score: 0000', { font: '20px PressStart2P', fill: '#ff0', align: 'center' }).setOrigin(0.5,0.5).setShadow(10, 10, 'black', 5);;
-        this.timeText = this.add.text(60, 40, '', { font: '20px PressStart2P', fill: '#ff0', align: 'left' }).setOrigin(0, 0.5).setShadow(10, 10, 'black', 5);;
-        this.cellCountText = this.add.text(width-60, 40, '', { font: '20px PressStart2P', fill: '#ff0', align: 'right' }).setOrigin(1.0,0.5).setShadow(10, 10, 'black', 5);;
+        this.scoreText = this.add.text(width/2, 40, 'Score: 0', { font: '20px PressStart2P', fill: '#FF0', align: 'center' }).setOrigin(0.5,0.5).setShadow(10, 10, 'black', 5);;
+        this.timeText = this.add.text(60, 40, '', { font: '20px PressStart2P', fill: '#FF0', align: 'left' }).setOrigin(0, 0.5).setShadow(10, 10, 'black', 5);;
+        this.cellCountText = this.add.text(width-60, 40, '', { font: '20px PressStart2P', fill: '#FF0', align: 'right' }).setOrigin(1.0,0.5).setShadow(10, 10, 'black', 5);;
 
         this.world = this.scene.get('WorldScene');
 
@@ -33,6 +33,6 @@ class UIScene extends Phaser.Scene {
 
     addScore() {
         this.score += 10;
-        this.scoreText.setText('Score: ' + String(parseInt(this.score)).padStart(4, '0'));
+        this.scoreText.setText('Score: ' + String(parseInt(this.score)));
     }
 }
