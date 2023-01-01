@@ -1,12 +1,13 @@
 {
     "images" : [
-        { "key" : "background", "filename" : "background.jpg" },
+        { "key" : "background", "filename" : "background.png" },
         { "key" : "cancer-cell", "filename" : "cancer-cell.png" },
         { "key" : "player", "filename" : "player.png" },
         { "key" : "particle", "filename" : "particle.png"},
         { "key" : "rock-tile-small", "filename" : "rock-tile-small.png"}
     ],
     "spritesheets" : [
-        { "key" : "fireball", "filename" : "fireball-sprite-sheet-green.png", "frameWidth" : 512, "frameHeight" : 512 }
+        { "key" : "fireball", "filename" : "fireball-sprite-sheet.png", "frameWidth" : 512, "frameHeight" : 512 },
+        { "key" : "slime", "filename" : "slime-sprite-sheet.png", "frameWidth" : 247, "frameHeight" : 150 }
     ]
 }

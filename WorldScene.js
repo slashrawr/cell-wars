@@ -42,7 +42,7 @@ class WorldScene extends Phaser.Scene {
         this.initialCellCount = 1;
         this.cellTick = 5;
         this.cellsPerTick = 1;
-        this.maxCells = 2;
+        this.maxCells = 20;
         this.currentCellCount = 0;
     }
 
@@ -61,10 +61,17 @@ class WorldScene extends Phaser.Scene {
             repeat: -1
         });
 
+        this.anims.create({
+            key: 'player-slime',
+            frames: this.anims.generateFrameNumbers('slime', { frames: [ 0, 1, 2, 3, 4, 5, 6, 7 ] }),
+            frameRate: 10,
+            repeat: -1
+        });
+
         this.matter.world.setBounds(0, 0, 2048, 2048);
         this.cameras.main.setBounds(0, 0, 2048, 2048);
 
-        this.add.image(0,0,'background').setOrigin(0);
+        this.add.image(0,0,'background').setOrigin(0).setDisplaySize(2048,2048);
 
         let particles = this.add.particles('particle');
 
@@ -73,7 +80,7 @@ class WorldScene extends Phaser.Scene {
             blendMode: 'SCREEN',
             scale: {start: 0.3, end: 0},
             lifespan: 300,
-            tint: 0xde16d1,
+            tint: 0x00ff00,
             angle: { min: 0, max: 360 },
             speed: 350
         });
@@ -88,18 +95,24 @@ class WorldScene extends Phaser.Scene {
             this.currentCellCount++;
         }
 
-        this.player = this.matter.add.sprite(500,300, 'player').setScale(0.2);
-        this.player.setCollisionGroup(this.bulletGroup);
+        this.player = this.matter.add.sprite(500,300, 'slime', 0)
+        .setScale(0.9)
+        .setCircle(50)
+        .setOrigin(0.7,0.5)
+        .setMass(15)
+        .setCollisionGroup(this.bulletGroup)
+        .play('player-slime');
         this.cameras.main.startFollow(this.player, true);
 
         this.matter.add.sprite(800, 800, 'rock-tile-small').setStatic(true);
 
         for (let i = 0; i < this.maxBullets; i++) {
-            let b = this.matter.add.sprite(-100, -100, 'bullet');
+            let b = this.matter.add.sprite(-100, -100, 'fireball', 0)
+            .setCircle(100)
+            .setCollisionGroup(this.bulletGroup)
+            .setMass(0.09)
+            .setVisible(false);
             b.body.label = "bullet";
-            b.setCollisionGroup(this.bulletGroup);
-            b.visible = false;
-            b.setMass(0.1);
             this.bullets.push(b);
         }
 
@@ -167,7 +180,7 @@ class WorldScene extends Phaser.Scene {
     
         if (this.cursors.up.isDown)
         {
-            this.matter.applyForceFromAngle(this.player, 0.002, this.player.rotation);
+            this.matter.applyForceFromAngle(this.player, 0.02, this.player.rotation);
         }
 
         if (this.cursors.left.isDown)

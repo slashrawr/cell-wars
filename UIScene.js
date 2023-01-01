@@ -28,7 +28,7 @@ class UIScene extends Phaser.Scene {
 
     update (time, delta) {
         this.timeText.setText('Time: ' + String(parseInt(this.world.worldTime)).padStart(4, '0'));
-        this.cellCountText.setText('Cells:' + String(parseInt(this.world.currentCellCount)).padStart(2,'0'));
+        this.cellCountText.setText('Cells:' + String(parseInt(this.world.currentCellCount)).padStart(2,'0') + "/" + this.world.maxCells);
     }
 
     addScore() {
