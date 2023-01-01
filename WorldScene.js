@@ -79,7 +79,7 @@ class WorldScene extends Phaser.Scene {
             alpha: {start: 1, end: 0.1, ease: 'Expo.easeOut'},
             blendMode: 'SCREEN',
             scale: {start: 0.3, end: 0},
-            lifespan: 300,
+            lifespan: 500,
             tint: 0x00ff00,
             angle: { min: 0, max: 360 },
             speed: 350
@@ -111,7 +111,9 @@ class WorldScene extends Phaser.Scene {
             .setCircle(100)
             .setCollisionGroup(this.bulletGroup)
             .setMass(0.09)
-            .setVisible(false);
+            .setVisible(false)
+            .setScale(0.3)
+            .play('fireball');
             b.body.label = "bullet";
             this.bullets.push(b);
         }
@@ -145,7 +147,7 @@ class WorldScene extends Phaser.Scene {
     collision(event, object1, object2) {
         if ((object1.label == "cancer" && object2.label == "bullet")) {
             this.cancerEmitter.active = true;
-            this.cancerEmitter.explode(3000, object1.gameObject.x, object1.gameObject.y);
+            this.cancerEmitter.explode(100, object1.gameObject.x, object1.gameObject.y);
             object1.gameObject.receiveHit(10);
             this.resetBullet(object2.gameObject);
             
@@ -156,7 +158,7 @@ class WorldScene extends Phaser.Scene {
         }
         else if (object1.label == "bullet" && object2.label == "cancer") {
             this.cancerEmitter.active = true;
-            this.cancerEmitter.explode(3000, object2.gameObject.x, object2.gameObject.y);
+            this.cancerEmitter.explode(100, object2.gameObject.x, object2.gameObject.y);
             object2.gameObject.receiveHit(10);            
             this.resetBullet(object1.gameObject);
 
@@ -180,7 +182,7 @@ class WorldScene extends Phaser.Scene {
     
         if (this.cursors.up.isDown)
         {
-            this.matter.applyForceFromAngle(this.player, 0.02, this.player.rotation);
+            this.matter.applyForceFromAngle(this.player, 0.015, this.player.rotation);
         }
 
         if (this.cursors.left.isDown)
@@ -211,9 +213,8 @@ class WorldScene extends Phaser.Scene {
                 bullet.y = this.player.y;
                 bullet.visible = true;
                 bullet.rotation = this.player.rotation;
-                bullet.setScale(0.3);
-                bullet.play('fireball');
-                this.matter.applyForceFromPosition(bullet, this.player.body.position, 0.0008, this.player.rotation);
+                
+                this.matter.applyForceFromPosition(bullet, this.player.body.position, 0.0007, this.player.rotation);
                 this.isBulletOut = true;
             }
         }
@@ -236,7 +237,7 @@ class WorldScene extends Phaser.Scene {
 
     loadGameOverScene(isWin) {
         this.scene.pause();
-        this.add.rectangle(0, 0, 2048, 2048, 0x000000).setOrigin(0,0).setAlpha(0.3);
+        this.add.rectangle(0, 0, 2048, 2048, 0x000000).setOrigin(0,0).setAlpha(0.5);
 
         if (isWin) {
             this.scene.run('WinScene');
