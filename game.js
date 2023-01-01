@@ -2,7 +2,7 @@ const config = {
     type: Phaser.AUTO,
     width: 1280,
     height: 720,
-    scene: [MainMenuScene, WorldScene, UIScene, WinScene, LoseScene],
+    scene: [BootScene, LoadingScene, MainMenuScene, WorldScene, UIScene, WinScene, LoseScene],
     physics: {
         default: "matter",
         matter: {

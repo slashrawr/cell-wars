@@ -5,7 +5,7 @@ class Button {
                     .setOrigin(0.5)
                     .setPadding(10)
                     //.setStyle({ backgroundColor: '#222' })
-                    .setFontSize('42px')
+                    .setFontSize('62px')
                     .setFontFamily('"PressStart2P", cursive')
                     .setInteractive({ useHandCursor: true })
                     .on('pointerdown', () => callback(scene))

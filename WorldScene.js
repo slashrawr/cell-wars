@@ -35,14 +35,6 @@ class WorldScene extends Phaser.Scene {
 
     preload () {
         this.load.path = './assets/';
-
-        this.load.spritesheet('fireball', 'fireball-sprite-sheet-green.png', { frameWidth: 512, frameHeight: 512 });
-
-        this.load.image('background', 'images/background.jpg');
-        this.load.image('player', 'images/player.png');
-        this.load.image('cancer', 'images/cancer-cell.png');
-        this.load.image('particle', 'particles-single.png');
-        this.load.image('rock-tile-small', 'rock-tile-small.png');
     }
 
     create () {
@@ -78,7 +70,7 @@ class WorldScene extends Phaser.Scene {
         this.bulletGroup = this.matter.world.nextGroup(true);
 
         for (let i = 0; i < this.initialCellCount; i++) {
-            let cancerCell = new CancerCell(this.matter.world, Phaser.Math.Between(100, 1948),Phaser.Math.Between(100, 1948), 'cancer', 50).setStatic(true).setSensor(true);
+            let cancerCell = new CancerCell(this.matter.world, Phaser.Math.Between(100, 1948),Phaser.Math.Between(100, 1948), 'cancer-cell', 50).setStatic(true).setSensor(true);
             this.currentCellCount++;
         }
 
@@ -113,7 +105,7 @@ class WorldScene extends Phaser.Scene {
 
     generateCell() {
         for (let i = 0; i < this.cellsPerTick; i++) {
-            let cancerCell = new CancerCell(this.matter.world, Phaser.Math.Between(100, 1948), Phaser.Math.Between(100, 1948), 'cancer', 50).setStatic(true).setSensor(true);
+            let cancerCell = new CancerCell(this.matter.world, Phaser.Math.Between(100, 1948), Phaser.Math.Between(100, 1948), 'cancer-cell', 50).setStatic(true).setSensor(true);
             this.currentCellCount++;
         }
 
