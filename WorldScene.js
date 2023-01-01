@@ -10,15 +10,15 @@ class WorldScene extends Phaser.Scene {
     cancer;
     cancerGroup;
     cursors;
-    worldTime = 0;
+    worldTime;
     worldTimer;
 
     //Weapon & Bullets
-    maxBullets = 10;
-    currentBullet = 0;
-    bullets = [];
+    maxBullets;
+    currentBullet;
+    bullets;
     bullet;
-    isBulletOut = false;
+    isBulletOut;
     bulletGroup;
 
     //Keys
@@ -27,17 +27,31 @@ class WorldScene extends Phaser.Scene {
     //Cancer
     cellTimer;
     cancerEmitter;
-    initialCellCount = 10; //number of cells to start with
-    cellTick = 20; //rate at which new cells are generated - seconds
-    cellsPerTick = 1; //number of cells generated per tick
-    maxCells = 20; //number of cells to lose the game
-    currentCellCount = 0;
+    initialCellCount; //number of cells to start with
+    cellTick; //rate at which new cells are generated - seconds
+    cellsPerTick; //number of cells generated per tick
+    maxCells; //number of cells to lose the game
+    currentCellCount;
+
+    init() {
+        this.bullets = [];
+        this.worldTime = 0;
+        this.maxBullets = 10,
+        this.currentBullet = 0;
+        this.isBulletOut = false;
+        this.initialCellCount = 1;
+        this.cellTick = 5;
+        this.cellsPerTick = 1;
+        this.maxCells = 2;
+        this.currentCellCount = 0;
+    }
 
     preload () {
         this.load.path = './assets/';
     }
 
     create () {
+        this.init();
         this.matter.set60Hz();
         this.scene.get('UIScene').cellCount = this.initialCellCount;
         this.anims.create({
@@ -212,9 +226,9 @@ class WorldScene extends Phaser.Scene {
         this.add.rectangle(0, 0, 2048, 2048, 0x000000).setOrigin(0,0).setAlpha(0.3);
 
         if (isWin) {
-            this.scene.launch('WinScene');
+            this.scene.run('WinScene');
         } else {
-            this.scene.launch('LoseScene');
+            this.scene.run('LoseScene');
         }       
     }
 }

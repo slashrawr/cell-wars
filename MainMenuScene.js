@@ -28,6 +28,12 @@ class MainMenuScene extends Phaser.Scene {
 
     destroy() {
         this.howToDialog.destroy();
+        this.howToButton.destroy();
+        this.playButton.destroy();
+        this.howToTextHeading.destroy();
+        this.howToText.destroy();
+        this.howToOKButton.destroy();
+        this.instructionsText.destroy();
     }
 
     play(parentScene) {
@@ -65,6 +71,5 @@ class MainMenuScene extends Phaser.Scene {
             scene.showButtons();
 
         })
-        console.log("How to button!");
     }
 }

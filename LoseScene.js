@@ -18,9 +18,15 @@ class LoseScene extends Phaser.Scene {
             .setFontSize('104px')
             .setFontFamily('"PressStart2P", cursive')
             .setShadow(10, 10, 'black', 5);
+
+        let playAgainButton = new Button(this, width/2, height-100,"Play Again", null, null, null, null, this.playAgain)
     }
 
     update (time, delta) {
 
+    }
+
+    playAgain(parentScene) {
+        parentScene.scene.start("WorldScene");
     }
 }
