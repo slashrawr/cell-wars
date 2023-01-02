@@ -12,6 +12,7 @@ class WorldScene extends Phaser.Scene {
     cursors;
     worldTime;
     worldTimer;
+    radarRect;
 
     //Weapon & Bullets
     maxBullets;
@@ -20,6 +21,7 @@ class WorldScene extends Phaser.Scene {
     bullet;
     isBulletOut;
     bulletGroup;
+    lines;
 
     //Keys
     spaceKey;
@@ -39,11 +41,12 @@ class WorldScene extends Phaser.Scene {
         this.maxBullets = 10,
         this.currentBullet = 0;
         this.isBulletOut = false;
-        this.initialCellCount = 1;
-        this.cellTick = 5;
+        this.initialCellCount = 10;
+        this.cellTick = 10;
         this.cellsPerTick = 1;
         this.maxCells = 20;
         this.currentCellCount = 0;
+        this.lines = [];
     }
 
     preload () {
@@ -64,7 +67,7 @@ class WorldScene extends Phaser.Scene {
         this.anims.create({
             key: 'player-slime',
             frames: this.anims.generateFrameNumbers('slime', { frames: [ 0, 1, 2, 3, 4, 5, 6, 7 ] }),
-            frameRate: 10,
+            frameRate: 8,
             repeat: -1
         });
 
@@ -80,7 +83,7 @@ class WorldScene extends Phaser.Scene {
             blendMode: 'SCREEN',
             scale: {start: 0.3, end: 0},
             lifespan: 500,
-            tint: 0x00ff00,
+            tint: 0x099900,
             angle: { min: 0, max: 360 },
             speed: 350
         });
@@ -90,11 +93,6 @@ class WorldScene extends Phaser.Scene {
         this.cancerGroup = this.matter.world.nextGroup(true);
         this.bulletGroup = this.matter.world.nextGroup(true);
 
-        for (let i = 0; i < this.initialCellCount; i++) {
-            let cancerCell = new CancerCell(this.matter.world, Phaser.Math.Between(100, 1948),Phaser.Math.Between(100, 1948), 'cancer-cell', 50).setStatic(true).setSensor(true);
-            this.currentCellCount++;
-        }
-
         this.player = this.matter.add.sprite(500,300, 'slime', 0)
         .setScale(0.9)
         .setCircle(50)
@@ -102,7 +100,6 @@ class WorldScene extends Phaser.Scene {
         .setMass(15)
         .setCollisionGroup(this.bulletGroup)
         .play('player-slime');
-        this.cameras.main.startFollow(this.player, true);
 
         this.matter.add.sprite(800, 800, 'rock-tile-small').setStatic(true);
 
@@ -118,18 +115,25 @@ class WorldScene extends Phaser.Scene {
             this.bullets.push(b);
         }
 
+        for (let i = 0; i < this.initialCellCount; i++) {
+            this.generateCell();
+        }
+
+        this.radarRect = new Phaser.Geom.Rectangle(0,0,this.scale.width,this.scale.height);
+
+        this.cameras.main.startFollow(this.player, true);
+        this.cameras.main.on('followupdate', function(camera, gameObject){ 
+            camera.scene.radarRect.setPosition(camera.scrollX, camera.scrollY);
+        })
+
         this.cursors = this.input.keyboard.createCursorKeys();
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
         this.matter.world.on('collisionstart', this.collision, this);
         this.cellTimer = this.time.addEvent({ delay: this.cellTick * 1000, callback: this.generateCell, callbackScope: this, loop: true });
-        this.worldTimer = this.time.addEvent({ delay: 1000, callback: this.incrementWorldTime, callbackScope: this, loop: true });
+        this.worldTimer = this.time.addEvent({ delay: 1000, callback: function() {this.worldTime++}, callbackScope: this, loop: true });
 
         this.scene.launch('UIScene');
-    }
-
-    incrementWorldTime() {
-        this.worldTime++;
     }
 
     generateCell() {
@@ -237,7 +241,7 @@ class WorldScene extends Phaser.Scene {
 
     loadGameOverScene(isWin) {
         this.scene.pause();
-        this.add.rectangle(0, 0, 2048, 2048, 0x000000).setOrigin(0,0).setAlpha(0.5);
+        this.add.rectangle(0, 0, 2048, 2048, 0x000000).setOrigin(0).setAlpha(0.5);
 
         if (isWin) {
             this.scene.run('WinScene');

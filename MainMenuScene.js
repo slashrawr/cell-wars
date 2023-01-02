@@ -18,8 +18,15 @@ class MainMenuScene extends Phaser.Scene {
 
     create () {
         const { width, height } = this.scale;
-        this.playButton = new Button(this, width/2, height/2-100, "Start Game", null, null, null, null, this.play);
+        this.add.image(0,0,'background').setDisplaySize(width,height).setOrigin(0,0);
+        this.add.text(width/2, 100, "CELL WARS", { font: '106px PressStart2P', fill: '#FF0', align: 'center' })
+        .setShadow(10,10,'#000000', 20)
+        .setOrigin(0.5);
+        this.playButton = new Button(this, width/2, height/2-50, "Start Game", null, null, null, null, this.play);
         this.howToButton = new Button(this, width/2, height/2+100, "How To Play", null, null, null, null, this.howTo);
+        this.add.text(width/2, height-30, "Created by Brandon Lewis", { font: '32px PressStart2P', fill: '#FF0', align: 'center' })
+        .setShadow(10,10,'#000000', 20)
+        .setOrigin(0.5);
     }
 
     update (time, delta) {
@@ -57,9 +64,9 @@ class MainMenuScene extends Phaser.Scene {
         let dialogY = 100;
         let dialogWidth = width-(dialogX*2);
         let dialogHeight = height-(dialogY*2);
-        scene.howToDialog = scene.add.rectangle(dialogX,dialogY,dialogWidth,dialogHeight,0x555555).setOrigin(0);
-        scene.howToTextHeading = scene.add.text(width/2, dialogY+50,"How To Play!", { font: '20px PressStart2P', fill: '#000000', align: 'center' }).setOrigin(0.5,0.5);
-        scene.howToText = scene.add.text(width/2, dialogY+100, scene.instructionsText, { font: '20px PressStart2P', fill: '#000000', align: 'justify' })
+        scene.howToDialog = scene.add.rectangle(dialogX,dialogY,dialogWidth,dialogHeight,0xffff00).setOrigin(0).setAlpha(0.9);
+        scene.howToTextHeading = scene.add.text(width/2, dialogY+50,"How To Play!", { font: '32px PressStart2P', fill: '#000000', align: 'center' }).setOrigin(0.5,0.5);
+        scene.howToText = scene.add.text(width/2, dialogY+100, scene.instructionsText, { font: '20px PressStart2P', fill: '#000000', align: 'left' })
         .setOrigin(0.5,0)
         .setWordWrapWidth(dialogWidth-50)
         .setLineSpacing(20);
