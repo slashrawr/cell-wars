@@ -93,7 +93,7 @@ class WorldScene extends Phaser.Scene {
         this.cancerGroup = this.matter.world.nextGroup(true);
         this.bulletGroup = this.matter.world.nextGroup(true);
 
-        this.player = this.matter.add.sprite(500,300, 'slime', 0)
+        this.player = new Player(this.matter.world, 500, 300, 'slime')
         .setScale(0.9)
         .setCircle(50)
         .setOrigin(0.7,0.5)
@@ -186,7 +186,7 @@ class WorldScene extends Phaser.Scene {
     
         if (this.cursors.up.isDown)
         {
-            this.matter.applyForceFromAngle(this.player, 0.015, this.player.rotation);
+            this.movePlayerUp();
         }
 
         if (this.cursors.left.isDown)
@@ -202,26 +202,12 @@ class WorldScene extends Phaser.Scene {
             this.player.setAngularVelocity(0);
         }
             
-        if (this.spaceKey.isDown) {
-            if (!this.isBulletOut) {
+        if (this.spaceKey.isDown)
+            this.fireBullet();
+    }
 
-                let bullet = this.bullets[this.currentBullet];
-                if (this.currentBullet == this.maxBullets - 1)
-                    this.currentBullet = 0;
-                else
-                    this.currentBullet++;
-
-                this.time.delayedCall(200, this.bulletReady, [], this);
-                this.time.delayedCall(800, this.bulletLifetime, [bullet], this);
-                bullet.x = this.player.x;
-                bullet.y = this.player.y;
-                bullet.visible = true;
-                bullet.rotation = this.player.rotation;
-                
-                this.matter.applyForceFromPosition(bullet, this.player.body.position, 0.0007, this.player.rotation);
-                this.isBulletOut = true;
-            }
-        }
+    movePlayerUp() {
+        this.matter.applyForceFromAngle(this.player, 0.015, this.player.rotation);
     }
 
     bulletReady () {
@@ -237,6 +223,27 @@ class WorldScene extends Phaser.Scene {
         bullet.x = -100;
         bullet.y = -100;
         bullet.setVelocity(0);
+    }
+
+    fireBullet() {
+        if (!this.isBulletOut) {
+
+            let bullet = this.bullets[this.currentBullet];
+            if (this.currentBullet == this.maxBullets - 1)
+                this.currentBullet = 0;
+            else
+                this.currentBullet++;
+
+            this.time.delayedCall(200, this.bulletReady, [], this);
+            this.time.delayedCall(800, this.bulletLifetime, [bullet], this);
+            bullet.x = this.player.x;
+            bullet.y = this.player.y;
+            bullet.visible = true;
+            bullet.rotation = this.player.rotation;
+            
+            this.matter.applyForceFromPosition(bullet, this.player.body.position, 0.0007, this.player.rotation);
+            this.isBulletOut = true;
+        }
     }
 
     loadGameOverScene(isWin) {
