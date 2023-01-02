@@ -13,6 +13,13 @@ const config = {
     fps: { 
         forceSetTimeOut: true,
         target: 60
+    },
+    scale: {
+        parent: 'gamediv',
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+        width: 1280,
+        height: 720
     }
 };
 

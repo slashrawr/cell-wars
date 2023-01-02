@@ -48,23 +48,22 @@ class UIScene extends Phaser.Scene {
     createMobileControls() {
         const { width, height } = this.scale;
 
-        //fire button
-        this.fireButton = this.add.ellipse(100, height-100, 100, 100).setFillStyle(0xFFFFFF, 0.8)
+        this.fireButton = this.add.ellipse(100, height-100, 200, 200).setFillStyle(0xFFFFFF, 0.8)
         .setInteractive()
         .on('pointerdown', this.triggerFireOn)
         .on('pointerup', this.triggerFireOff);
 
-        this.rightButton = this.add.ellipse(width-100, height-100, 100, 100).setFillStyle(0xFFFFFF, 0.8)
+        this.rightButton = this.add.ellipse(width-100, height-100, 200, 200).setFillStyle(0xFFFFFF, 0.8)
         .setInteractive()
         .on('pointerdown', this.triggerRightOn)
         .on('pointerup', this.triggerRightOff);
 
-        this.leftButton = this.add.ellipse(width-300, height-100, 100, 100).setFillStyle(0xFFFFFF, 0.8)
+        this.leftButton = this.add.ellipse(width-300, height-100, 200, 200).setFillStyle(0xFFFFFF, 0.8)
         .setInteractive()
         .on('pointerdown', this.triggerLeftOn)
         .on('pointerup', this.triggerLeftOff);
         
-        this.upButton = this.add.ellipse(width-200, height-200, 100, 100).setFillStyle(0xFFFFFF, 0.8)
+        this.upButton = this.add.ellipse(width-200, height-200, 200, 200).setFillStyle(0xFFFFFF, 0.8)
         .setInteractive()
         .on('pointerdown', this.triggerUpOn)
         .on('pointerup', this.triggerUpOff);
