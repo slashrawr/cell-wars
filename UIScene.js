@@ -32,7 +32,10 @@ class UIScene extends Phaser.Scene {
         this.world = this.scene.get('WorldScene');
 
         this.world.events.on('addScore', this.addScore, this);
-        this.createMobileControls();
+
+        if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent))
+            this.createMobileControls();
+        
     }
 
     processButtonDown(pointer, gameObject) {
